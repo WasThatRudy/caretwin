@@ -1,101 +1,95 @@
 "use client";
 import { create } from "zustand";
+import { monitor } from "./data";
 
-export type Severity = "ok" | "warnl" | "crit";
-export type Alert = { id: number; time: string; cls: Severity; msg: string; ai: string };
-type Mode = "normal" | "hr" | "spo2";
-type Sleep = "Awake" | "Light" | "Deep" | "REM";
+export type Severity = "ok" | "warn" | "crit";
+export type Alert = { id: number; time: string; cls: Severity; title: string; msg: string; ai: string };
 
-type Vitals = {
-  hr: number;
-  spo2: number;
-  hrv: number;
-  sleep: Sleep;
-  mode: Mode;
-  modeT: number;
-  t: number;
-  hist: number[];
-  alerts: Alert[];
-  lastAlert: number;
-  warn: boolean;
+const B = monitor.bpm, S = monitor.spo2, L = monitor.level;
+const N = B.length;
+const startMs = new Date(monitor.start.replace(" ", "T")).getTime();
+const recTime = (i: number) => new Date(startMs + i * 60000).toISOString().slice(11, 16);
+
+let alertId = 0;
+const cap = <T,>(a: T[], n: number) => (a.length > n ? a.slice(a.length - n) : a);
+
+type State = {
+  idx: number; playing: boolean; speed: number;
+  bpm: number; spo2: number; level: string; roll: number;
+  bpmHist: number[]; spo2Hist: number[];
+  warn: boolean; alerts: Alert[]; lastAlertIdx: number; lastSev: Severity;
   tick: () => void;
-  trigger: (m: Mode | "reset") => void;
+  setPlaying: (p: boolean) => void;
+  setSpeed: (s: number) => void;
+  jumpToEvent: () => void;
 };
 
-const MAXP = 120;
-const stages: Sleep[] = ["Awake", "Light", "Deep", "REM"];
-const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
-let alertId = 0;
-
-function push(state: Vitals, cls: Severity, msg: string, ai: string): Alert[] {
-  const a: Alert = { id: ++alertId, time: new Date().toLocaleTimeString(), cls, msg, ai };
-  return [a, ...state.alerts].slice(0, 8);
+function rollingMean(arr: number[], k: number) {
+  const s = arr.slice(-k);
+  return s.reduce((a, b) => a + b, 0) / Math.max(1, s.length);
 }
 
-export const useVitals = create<Vitals>((set, get) => ({
-  hr: 72,
-  spo2: 97,
-  hrv: 42,
-  sleep: "Awake",
-  mode: "normal",
-  modeT: 0,
-  t: 0,
-  hist: [],
-  alerts: [
-    {
-      id: ++alertId,
-      time: "--:--:--",
-      cls: "ok",
-      msg: "Monitoring started · all vitals within normal range",
-      ai: "Baseline established for Ramesh. CareTwin now tracks heart rate, SpO₂, and sleep in real time and will alert you before values become dangerous.",
-    },
-  ],
-  lastAlert: -99,
+export const useMonitor = create<State>((set, get) => ({
+  idx: 0, playing: true, speed: 1,
+  bpm: B[0], spo2: S[0], level: L[0], roll: S[0],
+  bpmHist: [B[0]], spo2Hist: [S[0]],
   warn: false,
+  alerts: [{
+    id: ++alertId, time: recTime(0), cls: "ok",
+    title: "Monitoring started",
+    msg: `Replaying a real overnight recording (Fitbit Sense 2, ${monitor.start.slice(0, 10)}).`,
+    ai: "Baseline established. CareTwin is tracking heart rate, SpO₂, and sleep stage from the recorded stream and will flag desaturation and rhythm anomalies against clinical thresholds.",
+  }],
+  lastAlertIdx: -99, lastSev: "ok",
 
   tick: () => {
-    const s = get();
-    let baseHR = 72, baseSpO2 = 97;
-    if (s.mode === "hr") baseHR = 134;
-    if (s.mode === "spo2") baseSpO2 = 83;
+    const st = get();
+    if (!st.playing) return;
+    let { idx, bpmHist, spo2Hist, alerts, lastAlertIdx, lastSev } = st;
+    let warn = st.warn;
 
-    let hr = s.hr + (baseHR - s.hr) * 0.25 + (Math.random() - 0.5) * 3;
-    let spo2 = s.spo2 + (baseSpO2 - s.spo2) * 0.25 + (Math.random() - 0.5) * 0.6;
-    hr = Math.max(45, Math.min(180, hr));
-    spo2 = Math.max(75, Math.min(100, spo2));
-    const hrv = Math.max(12, Math.round(70 - Math.abs(hr - 72) * 0.8 + (Math.random() - 0.5) * 6));
+    for (let s = 0; s < st.speed; s++) {
+      idx = (idx + 1) % N;
+      bpmHist = cap([...bpmHist, B[idx]], 90);
+      spo2Hist = cap([...spo2Hist, S[idx]], 90);
+      const roll = rollingMean(spo2Hist, 5);
 
-    const t = s.t + 1;
-    const hist = [...s.hist, hr].slice(-MAXP);
-    const sleep = t % 30 === 0 ? pick(stages) : s.sleep;
-    const warn = hr > 120 || spo2 < 90;
+      let sev: Severity = "ok";
+      if (roll < 88) sev = "crit";
+      else if (roll < 90) sev = "warn";
+      warn = sev !== "ok" || B[idx] > 120;
 
-    let alerts = s.alerts;
-    let lastAlert = s.lastAlert;
-    if (t - lastAlert >= 8) {
-      if (spo2 < 88) {
-        lastAlert = t;
-        const crit = spo2 < 85;
-        const where = sleep === "Awake" ? "the day" : "sleep";
-        alerts = push(s, crit ? "crit" : "warnl",
-          `SpO₂ ${Math.round(spo2)}% · ${crit ? "moderate" : "mild"} hypoxemia detected`,
-          `Oxygen dropped to <b>${Math.round(spo2)}%</b> during ${where}. Check on Ramesh, ensure a clear airway and an upright position. If it stays below 90% for 5+ minutes, contact the physician.`);
-      } else if (hr > 120) {
-        lastAlert = t;
-        alerts = push(s, "warnl",
-          `Heart rate ${Math.round(hr)} bpm · above expected range`,
-          `Heart rate spiked to <b>${Math.round(hr)} bpm</b>. If Ramesh is at rest, check for distress or pain. Encourage slow breathing and monitor; alert the physician if it persists past 10 minutes.`);
+      const worsened = (sev === "crit" && lastSev !== "crit") || (sev === "warn" && lastSev === "ok");
+      if (sev !== "ok" && worsened && idx - lastAlertIdx > 12) {
+        lastAlertIdx = idx;
+        const crit = sev === "crit";
+        const a: Alert = {
+          id: ++alertId, time: recTime(idx), cls: sev,
+          title: crit ? "Severe desaturation" : "Moderate desaturation",
+          msg: `SpO₂ fell to ${roll.toFixed(0)}% (5-min mean) during ${L[idx]} sleep, HR ${B[idx]} bpm.`,
+          ai: crit
+            ? `Oxygen has dropped to <b>${roll.toFixed(0)}%</b> for several minutes during deep sleep. This pattern is consistent with a sleep-related breathing disturbance. Recommend checking on the patient and, if repeated across the night, referring for a sleep assessment.`
+            : `A moderate dip to <b>${roll.toFixed(0)}%</b> was detected. Isolated dips are common on consumer sensors, but clustered events during sleep warrant follow-up. Continuing to monitor.`,
+        };
+        alerts = [a, ...alerts].slice(0, 8);
       }
+      lastSev = sev;
     }
 
-    let mode = s.mode, modeT = s.modeT;
-    if (mode !== "normal" && ++modeT > 16) { mode = "normal"; modeT = 0; }
-
-    set({ hr, spo2, hrv, sleep, hist, t, warn, alerts, lastAlert, mode, modeT });
+    set({
+      idx, bpm: B[idx], spo2: S[idx], level: L[idx], roll: rollingMean(spo2Hist, 5),
+      bpmHist, spo2Hist, warn, alerts, lastAlertIdx, lastSev,
+    });
   },
 
-  trigger: (m) => {
-    if (m === "reset") { set({ mode: "normal", modeT: 0 }); return; }
-    set({ mode: m, modeT: 0, lastAlert: -99 });
+  setPlaying: (p) => set({ playing: p }),
+  setSpeed: (s) => set({ speed: s }),
+  jumpToEvent: () => {
+    let mi = 0, mv = 200;
+    for (let i = 0; i < N; i++) if (S[i] < mv) { mv = S[i]; mi = i; }
+    const idx = Math.max(0, mi - 6);
+    set({ idx, bpm: B[idx], spo2: S[idx], level: L[idx], bpmHist: [B[idx]], spo2Hist: [S[idx]], lastAlertIdx: -99, lastSev: "ok", playing: true });
   },
 }));
+
+export const MONITOR_META = { N, minSpo2: monitor.min_spo2, start: monitor.start, recTime };

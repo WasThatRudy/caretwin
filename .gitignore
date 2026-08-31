@@ -7,3 +7,7 @@
 npm-debug.log*
 .env*
 next-env.d.ts
+
+/ml/EDT-Datasets
+/ml/.venv
+.venv

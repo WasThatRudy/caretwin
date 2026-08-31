@@ -1,50 +1,53 @@
 # CareTwin
 
-A generative-AI **digital twin** for real-time elderly health monitoring. Proof-of-concept dashboard: live vitals, a Bi-LSTM heart-rate forecast, on-edge anomaly detection, AI caregiver recommendations, and a 3D anatomical heart that beats at the patient's live BPM.
+A **real-data digital twin for elderly health monitoring**. Rather than a mock-up, CareTwin is built directly on the
+published wearable dataset from the base paper it extends — Momand et al., *Building Digital Twins for Elderly Care*,
+IEEE Access 2025. It cleans that data, reproduces the paper's analysis, trains the forecasting and sleep models, and
+drives a live monitor from an actual overnight recording.
 
-Built for the CareTwin major project (DSCE, Dept. of CSE).
+Major project · Dept. of CSE, Dayananda Sagar College of Engineering.
+Rudraksha Singh Sengar · Snehal Prakash · Ishaan Saxena · Guide: Dr. K. Janani.
+
+**Live:** https://caretwin-health.netlify.app
+
+## What's real here
+
+- **589k** real heart-rate readings, real SpO₂, and per-minute sleep stages (Fitbit Sense 2).
+- **Bi-LSTM** heart-rate forecaster, trained in PyTorch: **RMSE 1.86 bpm**, and it beats the unidirectional LSTM — reproducing the paper's central finding.
+- **Sleep-stage** classification and **Markov / Bayesian** transition matrices (95.3% next-step, paper ≈96%).
+- **17.6%** of raw SpO₂ removed by physiological validation — a real data-quality finding.
+- **SMOTE** augmentation lifts minority-class recall 6× — quantifying the target for the proposed GAN.
+- Live monitor replays a **real desaturation event** (min SpO₂ 83.8%) and fires on-edge guidance.
+
+Every figure and metric on the site is computed from the real data by `ml/pipeline.py` — see [`ml/README.md`](./ml/README.md).
 
 ## Stack
 
-- **Next.js 14** (App Router) + TypeScript
-- **react-three-fiber** + **drei** for the 3D anatomical heart (procedural mesh, orbit controls)
-- **zustand** for the live vitals store and simulation loop
-- **Tailwind CSS** for the clinical dark UI
+- **Next.js 14** (App Router) + TypeScript + Tailwind, IBM Plex type system
+- **react-three-fiber** + drei — anatomical heart (real GLB) beating at the live BPM
+- **zustand** — real-recording replay store + on-edge anomaly detection
+- **PyTorch / scikit-learn / imbalanced-learn** — the offline ML pipeline
 
 ## Run
 
 ```bash
 npm install
-npm run dev
+npm run dev            # http://localhost:3000
+
+# regenerate the data/metrics from the real dataset (optional):
+#   see ml/README.md
 ```
-
-Open http://localhost:3000
-
-## Demo
-
-The vitals are simulated for the proof of concept. Use the two red buttons to trigger an anomaly live during a demo:
-
-- **Simulate SpO₂ drop** — oxygen falls into the hypoxemia range; the anomaly detector fires and the AI writes a caregiver recommendation.
-- **Simulate HR spike** — heart rate climbs above the safe zone; the heart flushes red and an alert appears.
-- **Back to normal** — returns vitals to baseline.
 
 ## Structure
 
 ```
-app/            App Router entry, global styles
-components/      Dashboard, HeartTwin (R3F), VitalTiles, HRChart, AlertFeed, DataFlow
-lib/store.ts    zustand vitals store + simulation + anomaly detection
-lib/heartGeometry.ts  procedural anatomical heart geometry (ventricles + vessels)
+app/                 App Router entry, fonts, theme
+components/           Header, Hero, LiveMonitor (R3F), EDA / Models / Method sections, charts
+lib/data.ts          typed access to the real analysis + replay JSON
+lib/store.ts         real-recording replay + anomaly detection
+ml/pipeline.py       offline: clean → analyse → train → export (reproduces every number)
+public/data/*.json   analysis + monitor data produced by the pipeline
+public/models/       anatomical heart GLB
 ```
 
-## Where the real system would plug in
-
-- `lib/store.ts` `tick()` — replace the simulated stream with real wearable data (Fitbit / Apple Watch / Samsung APIs).
-- Bi-LSTM forecast in `HRChart` — swap the linear extrapolation for a TensorFlow.js / on-device model.
-- The AI recommendation text — call a real (ideally self-hosted) medical LLM.
-
-## Credits
-
-- 3D heart model: `public/models/heart.glb`, sourced from the [AdnanKhan45/interactive_3d](https://github.com/AdnanKhan45/interactive_3d) repository. Verify its license before any public or commercial use; swap in your own licensed `.glb` at the same path if needed.
-
-Not a medical device.
+Proof of concept · not a medical device.
