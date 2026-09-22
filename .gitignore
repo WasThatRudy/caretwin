@@ -12,3 +12,8 @@ next-env.d.ts
 /ml/.venv
 .venv
 /.netlify
+
+# training outputs (friend generates on GPU; keep binaries out of git)
+/ml/results/*.pt
+/ml/results/*.pth
+/ml/results/*.zip

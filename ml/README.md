@@ -1,40 +1,70 @@
-# CareTwin — ML pipeline
+# CareTwin — ML training package
 
-`pipeline.py` reproduces every number shown in the app, directly from the base paper's
-published dataset (Momand et al., IEEE Access 2025).
+All models are trained on the base paper's **real, published dataset**
+(Momand et al., IEEE Access 2025 — [EDT-Datasets](https://github.com/mommand/EDT-Datasets)):
+~589k heart-rate readings, SpO₂, and per-minute sleep stages from a Fitbit Sense 2.
 
-## What it does
+Everything here is CPU-runnable but is meant for a **CUDA GPU** (or free Google Colab GPU).
+Nothing large needs to live on a laptop — clone, train on the GPU, commit the results.
 
-1. Loads and validates the real HR / SpO₂ / sleep records (physiological range checks, timestamp alignment).
-2. Reproduces the exploratory analysis (distributions, sleep-vs-wake HR, class imbalance, BPM↔SpO₂ correlation).
-3. Trains a real **LSTM** and **Bi-LSTM** heart-rate forecaster (PyTorch) and reports held-out MSE / MAE / RMSE.
-4. Trains sleep-stage classifiers (instantaneous and temporal-context) and a **SMOTE** augmentation comparison.
-5. Computes **Markov (MLE)** and **Bayesian (Dirichlet)** sleep-transition matrices.
-6. Exports `../public/data/analysis.json` and `../public/data/monitor.json` consumed by the web app.
+## Fastest path — Google Colab (no local setup)
 
-## Run
+1. Open `CareTwin_Training.ipynb` in [Colab](https://colab.research.google.com/).
+2. Runtime → Change runtime type → **T4 GPU**.
+3. Runtime → **Run all**. It clones the dataset, trains every model, shows the
+   figures, and zips `results/` for download. ~10–15 min on a T4.
+
+## Local GPU
 
 ```bash
-# 1. get the dataset
+git clone https://github.com/WasThatRudy/caretwin.git && cd caretwin
 git clone https://github.com/mommand/EDT-Datasets.git ml/EDT-Datasets
-
-# 2. install and run
 python -m venv .venv && source .venv/bin/activate
 pip install -r ml/requirements.txt
-python ml/pipeline.py
+
+cd ml
+python run_all.py --src EDT-Datasets --out results          # full run
+python run_all.py --src EDT-Datasets --out results --smoke  # 10-second sanity check
 ```
 
-Outputs are written back into `public/data/`, so the site always reflects the latest run.
-Training is CPU-only and takes ~2 minutes.
+Run a single stage:
 
-## Headline results (this run)
+```bash
+python train_forecaster.py --src EDT-Datasets --out results   # LSTM + Bi-LSTM HR forecast
+python train_sleep.py      --src EDT-Datasets --out results   # LSTM sleep-stage classifier
+python train_gan.py        --src EDT-Datasets --out results   # conditional WGAN-GP + augmentation
+python transitions.py      --src EDT-Datasets --out results   # Markov + Bayesian transitions
+```
 
-| Task | Result | Base paper |
-|---|---|---|
-| HR forecast (Bi-LSTM) | RMSE 1.86 bpm, MSE 0.0109 | MSE 0.2944 |
-| HR forecast (LSTM) | RMSE 1.95 bpm, MSE 0.0119 | 0.3256 |
-| Sleep stage (temporal RF) | 79.2% acc | LSTM 92% |
-| Sleep transitions (next-step) | 95.3% | ≈96% |
-| SpO₂ artifacts removed | 17.6% of raw | — |
+> On Apple Silicon, WGAN-GP's gradient penalty (double backward) is unsupported on the MPS
+> backend — set `CARETWIN_CPU=1` to force CPU. CUDA is unaffected.
 
-Numbers are honest and reproducible; where the task setup differs from the paper it is noted in the app.
+## Files
+
+| File | What it does |
+|---|---|
+| `data.py` | load + validate + window the real datasets (shared) |
+| `models.py` | `Forecaster` (LSTM/Bi-LSTM), `SleepLSTM`, conditional `Generator`/`Discriminator` (WGAN-GP) |
+| `train_forecaster.py` | trains LSTM & Bi-LSTM next-step HR forecaster |
+| `train_sleep.py` | trains the LSTM sleep-stage classifier |
+| `train_gan.py` | **conditional WGAN-GP** + the real augmentation experiment (our contribution) |
+| `transitions.py` | Markov (MLE) + Bayesian (Dirichlet) sleep transitions |
+| `run_all.py` | runs everything, writes `results/summary.json` |
+| `pipeline.py` | lightweight variant that also exports the web app's `public/data/*.json` |
+
+## Outputs (in `results/`)
+
+- **Checkpoints:** `forecaster_lstm.pt`, `forecaster_bilstm.pt`, `sleep_lstm.pt`, `gan_generator.pt`
+- **Metrics:** `forecaster_metrics.json`, `sleep_metrics.json`, `gan_metrics.json`, `transitions.json`, `summary.json`
+- **Figures:** loss curves, actual-vs-predicted HR, sleep confusion matrix, transition heatmaps,
+  GAN training loss, synthetic samples, and the **minority-recall augmentation** bar chart.
+
+After a GPU run, commit the figures and JSON (small); the `.pt` checkpoints are git-ignored by default.
+
+## What the run demonstrates (Review 2)
+
+1. Real Bi-LSTM **beats** the unidirectional LSTM on HR forecasting — the paper's core finding.
+2. A real sleep-stage LSTM and the Markov/Bayesian transition models (≈95% next-step).
+3. A **conditional GAN** that synthesises per-stage physiology, and a controlled experiment
+   showing synthetic minority data changes classifier recall — the augmentation contribution
+   the base paper left to future work (it used only SMOTE).
