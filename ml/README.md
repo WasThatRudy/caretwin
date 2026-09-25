@@ -50,6 +50,7 @@ python transitions.py      --src EDT-Datasets --out results   # Markov + Bayesia
 | `train_gan.py` | **conditional WGAN-GP** + the real augmentation experiment (our contribution) |
 | `transitions.py` | Markov (MLE) + Bayesian (Dirichlet) sleep transitions |
 | `run_all.py` | runs everything, writes `results/summary.json` |
+| `evaluate.py` | tests every saved model on held-out data (baselines, stricter split, GAN fidelity, GAN vs SMOTE) and writes `results/eval/` |
 | `pipeline.py` | lightweight variant that also exports the web app's `public/data/*.json` |
 
 ## Outputs (in `results/`)
@@ -60,6 +61,8 @@ python transitions.py      --src EDT-Datasets --out results   # Markov + Bayesia
   GAN training loss, synthetic samples, and the **minority-recall augmentation** bar chart.
 
 After a GPU run, commit the figures and JSON (small); the `.pt` checkpoints are git-ignored by default.
+
+**Latest GPU run and test results: see [RESULTS.md](RESULTS.md).**
 
 ## What the run demonstrates (Review 2)
 

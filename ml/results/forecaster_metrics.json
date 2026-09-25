@@ -1,0 +1,24 @@
+{
+  "window": 32,
+  "std_bpm": 17.83,
+  "mean_bpm": 73.14,
+  "train_n": 160000,
+  "test_n": 40000,
+  "device": "cuda",
+  "models": {
+    "lstm": {
+      "mse": 0.0105,
+      "mae": 0.057,
+      "rmse_bpm": 1.83
+    },
+    "bilstm": {
+      "mse": 0.0104,
+      "mae": 0.0593,
+      "rmse_bpm": 1.82
+    }
+  },
+  "paper_bilstm": {
+    "mse": 0.2944,
+    "mae": 0.341
+  }
+}
