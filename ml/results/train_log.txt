@@ -1,0 +1,389 @@
+CareTwin full training run (run_all.py)
+date: 2026-09-25 23:06:07 +0530
+gpu: NVIDIA GeForce RTX 4050 Laptop GPU, 610.62, 6141 MiB
+python 3.12.5 | torch 2.11.0+cu128 | cuda 12.8 | cudnn 91900
+dataset: github.com/mommand/EDT-Datasets @ f73ef0b
+code: github.com/WasThatRudy/caretwin @ 444bb35
+cmd: python run_all.py --src EDT-Datasets --out results
+
+[forecaster] device=cuda
+[forecaster] windows=200000 train=160000 test=40000 std_bpm=17.83
+  training lstm ...
+    epoch 1/8  train 0.0647  val 0.0224
+    epoch 2/8  train 0.0124  val 0.0140
+    epoch 3/8  train 0.0085  val 0.0119
+    epoch 4/8  train 0.0068  val 0.0111
+    epoch 5/8  train 0.0062  val 0.0109
+    epoch 6/8  train 0.0059  val 0.0107
+    epoch 7/8  train 0.0058  val 0.0105
+    epoch 8/8  train 0.0057  val 0.0105
+  training bilstm ...
+    epoch 1/8  train 0.0511  val 0.0131
+    epoch 2/8  train 0.0076  val 0.0110
+    epoch 3/8  train 0.0067  val 0.0106
+    epoch 4/8  train 0.0063  val 0.0105
+    epoch 5/8  train 0.0061  val 0.0108
+    epoch 6/8  train 0.0060  val 0.0104
+    epoch 7/8  train 0.0059  val 0.0104
+    epoch 8/8  train 0.0058  val 0.0104
+[forecaster] LSTM MSE 0.0105  Bi-LSTM MSE 0.0104  (paper 0.2944)
+[sleep] device=cuda
+    epoch 8/40  loss 1.044
+    epoch 16/40  loss 0.911
+    epoch 24/40  loss 0.835
+    epoch 32/40  loss 0.901
+    epoch 40/40  loss 0.903
+[sleep] acc 0.534  macroF1 0.444  (paper LSTM 0.92)
+[gan] device=cuda
+[gan] windows=12542 T=16 conditions=['deep', 'light', 'rem', 'wake']
+    epoch 1/300  D 0.356  G -0.465
+    epoch 2/300  D -4.554  G -0.052
+    epoch 3/300  D -4.657  G -0.598
+    epoch 4/300  D -3.950  G -1.957
+    epoch 5/300  D -2.753  G -2.573
+    epoch 6/300  D -2.083  G -1.325
+    epoch 7/300  D -1.797  G -0.981
+    epoch 8/300  D -1.506  G -1.273
+    epoch 9/300  D -1.386  G -0.776
+    epoch 10/300  D -1.393  G -0.342
+    epoch 11/300  D -1.344  G -0.166
+    epoch 12/300  D -1.167  G 0.211
+    epoch 13/300  D -1.093  G 0.200
+    epoch 14/300  D -1.034  G 0.411
+    epoch 15/300  D -1.029  G 0.698
+    epoch 16/300  D -1.016  G 1.312
+    epoch 17/300  D -0.916  G 1.325
+    epoch 18/300  D -0.808  G 1.740
+    epoch 19/300  D -0.757  G 2.100
+    epoch 20/300  D -0.750  G 2.908
+    epoch 21/300  D -0.766  G 3.382
+    epoch 22/300  D -0.744  G 3.784
+    epoch 23/300  D -0.725  G 4.499
+    epoch 24/300  D -0.756  G 5.707
+    epoch 25/300  D -0.857  G 7.031
+    epoch 26/300  D -0.955  G 8.147
+    epoch 27/300  D -1.026  G 8.656
+    epoch 28/300  D -1.056  G 9.143
+    epoch 29/300  D -1.029  G 9.598
+    epoch 30/300  D -1.004  G 9.983
+    epoch 31/300  D -0.990  G 10.395
+    epoch 32/300  D -0.992  G 10.599
+    epoch 33/300  D -1.022  G 10.563
+    epoch 34/300  D -0.985  G 10.147
+    epoch 35/300  D -0.980  G 10.068
+    epoch 36/300  D -0.907  G 10.010
+    epoch 37/300  D -0.852  G 10.081
+    epoch 38/300  D -0.856  G 9.957
+    epoch 39/300  D -0.881  G 9.835
+    epoch 40/300  D -0.904  G 9.499
+    epoch 41/300  D -0.857  G 8.847
+    epoch 42/300  D -0.816  G 8.513
+    epoch 43/300  D -0.776  G 8.358
+    epoch 44/300  D -0.771  G 8.183
+    epoch 45/300  D -0.798  G 7.962
+    epoch 46/300  D -0.757  G 7.658
+    epoch 47/300  D -0.727  G 7.202
+    epoch 48/300  D -0.701  G 6.798
+    epoch 49/300  D -0.653  G 6.503
+    epoch 50/300  D -0.648  G 6.161
+    epoch 51/300  D -0.688  G 5.941
+    epoch 52/300  D -0.705  G 5.576
+    epoch 53/300  D -0.691  G 5.256
+    epoch 54/300  D -0.675  G 4.982
+    epoch 55/300  D -0.665  G 4.678
+    epoch 56/300  D -0.649  G 4.539
+    epoch 57/300  D -0.662  G 4.503
+    epoch 58/300  D -0.620  G 4.524
+    epoch 59/300  D -0.624  G 4.358
+    epoch 60/300  D -0.630  G 4.238
+    epoch 61/300  D -0.623  G 4.120
+    epoch 62/300  D -0.636  G 4.007
+    epoch 63/300  D -0.622  G 3.813
+    epoch 64/300  D -0.605  G 3.642
+    epoch 65/300  D -0.592  G 3.649
+    epoch 66/300  D -0.558  G 3.695
+    epoch 67/300  D -0.551  G 3.644
+    epoch 68/300  D -0.577  G 3.706
+    epoch 69/300  D -0.605  G 3.574
+    epoch 70/300  D -0.574  G 3.348
+    epoch 71/300  D -0.582  G 3.085
+    epoch 72/300  D -0.560  G 2.890
+    epoch 73/300  D -0.563  G 2.657
+    epoch 74/300  D -0.553  G 2.331
+    epoch 75/300  D -0.542  G 2.039
+    epoch 76/300  D -0.536  G 1.772
+    epoch 77/300  D -0.515  G 1.420
+    epoch 78/300  D -0.518  G 1.325
+    epoch 79/300  D -0.493  G 0.923
+    epoch 80/300  D -0.498  G 0.843
+    epoch 81/300  D -0.513  G 0.558
+    epoch 82/300  D -0.516  G 0.724
+    epoch 83/300  D -0.522  G 0.519
+    epoch 84/300  D -0.529  G 0.767
+    epoch 85/300  D -0.530  G 0.738
+    epoch 86/300  D -0.546  G 0.765
+    epoch 87/300  D -0.545  G 0.887
+    epoch 88/300  D -0.540  G 0.946
+    epoch 89/300  D -0.513  G 1.017
+    epoch 90/300  D -0.501  G 0.794
+    epoch 91/300  D -0.519  G 0.843
+    epoch 92/300  D -0.511  G 1.144
+    epoch 93/300  D -0.518  G 1.260
+    epoch 94/300  D -0.535  G 1.379
+    epoch 95/300  D -0.525  G 1.638
+    epoch 96/300  D -0.509  G 1.757
+    epoch 97/300  D -0.510  G 1.936
+    epoch 98/300  D -0.531  G 1.797
+    epoch 99/300  D -0.542  G 2.070
+    epoch 100/300  D -0.520  G 2.108
+    epoch 101/300  D -0.542  G 2.225
+    epoch 102/300  D -0.533  G 2.265
+    epoch 103/300  D -0.530  G 2.573
+    epoch 104/300  D -0.547  G 2.589
+    epoch 105/300  D -0.530  G 2.817
+    epoch 106/300  D -0.517  G 2.725
+    epoch 107/300  D -0.524  G 2.779
+    epoch 108/300  D -0.525  G 2.851
+    epoch 109/300  D -0.550  G 3.053
+    epoch 110/300  D -0.545  G 2.982
+    epoch 111/300  D -0.513  G 3.086
+    epoch 112/300  D -0.512  G 3.247
+    epoch 113/300  D -0.526  G 3.389
+    epoch 114/300  D -0.520  G 3.682
+    epoch 115/300  D -0.521  G 3.615
+    epoch 116/300  D -0.516  G 4.047
+    epoch 117/300  D -0.512  G 3.734
+    epoch 118/300  D -0.509  G 3.925
+    epoch 119/300  D -0.512  G 4.124
+    epoch 120/300  D -0.514  G 4.189
+    epoch 121/300  D -0.538  G 4.254
+    epoch 122/300  D -0.545  G 4.538
+    epoch 123/300  D -0.551  G 4.643
+    epoch 124/300  D -0.541  G 4.608
+    epoch 125/300  D -0.562  G 4.611
+    epoch 126/300  D -0.526  G 4.614
+    epoch 127/300  D -0.515  G 4.768
+    epoch 128/300  D -0.498  G 4.817
+    epoch 129/300  D -0.504  G 5.234
+    epoch 130/300  D -0.509  G 5.143
+    epoch 131/300  D -0.500  G 5.140
+    epoch 132/300  D -0.504  G 5.070
+    epoch 133/300  D -0.501  G 5.202
+    epoch 134/300  D -0.474  G 5.379
+    epoch 135/300  D -0.471  G 5.433
+    epoch 136/300  D -0.481  G 5.661
+    epoch 137/300  D -0.486  G 5.634
+    epoch 138/300  D -0.484  G 5.917
+    epoch 139/300  D -0.485  G 5.965
+    epoch 140/300  D -0.482  G 6.101
+    epoch 141/300  D -0.485  G 6.101
+    epoch 142/300  D -0.488  G 6.147
+    epoch 143/300  D -0.470  G 6.351
+    epoch 144/300  D -0.464  G 6.421
+    epoch 145/300  D -0.452  G 6.507
+    epoch 146/300  D -0.469  G 6.713
+    epoch 147/300  D -0.467  G 6.940
+    epoch 148/300  D -0.449  G 7.147
+    epoch 149/300  D -0.463  G 7.071
+    epoch 150/300  D -0.467  G 7.184
+    epoch 151/300  D -0.475  G 7.411
+    epoch 152/300  D -0.457  G 7.599
+    epoch 153/300  D -0.453  G 7.734
+    epoch 154/300  D -0.444  G 7.806
+    epoch 155/300  D -0.444  G 8.057
+    epoch 156/300  D -0.458  G 8.107
+    epoch 157/300  D -0.447  G 8.087
+    epoch 158/300  D -0.457  G 7.995
+    epoch 159/300  D -0.451  G 8.221
+    epoch 160/300  D -0.477  G 8.389
+    epoch 161/300  D -0.454  G 8.586
+    epoch 162/300  D -0.438  G 8.831
+    epoch 163/300  D -0.450  G 8.901
+    epoch 164/300  D -0.443  G 8.997
+    epoch 165/300  D -0.438  G 8.841
+    epoch 166/300  D -0.445  G 9.096
+    epoch 167/300  D -0.438  G 9.137
+    epoch 168/300  D -0.452  G 9.267
+    epoch 169/300  D -0.461  G 9.322
+    epoch 170/300  D -0.440  G 9.373
+    epoch 171/300  D -0.452  G 9.376
+    epoch 172/300  D -0.444  G 9.508
+    epoch 173/300  D -0.444  G 9.562
+    epoch 174/300  D -0.474  G 9.658
+    epoch 175/300  D -0.451  G 9.781
+    epoch 176/300  D -0.455  G 9.986
+    epoch 177/300  D -0.454  G 9.927
+    epoch 178/300  D -0.429  G 10.220
+    epoch 179/300  D -0.455  G 10.181
+    epoch 180/300  D -0.436  G 10.376
+    epoch 181/300  D -0.442  G 10.413
+    epoch 182/300  D -0.434  G 10.540
+    epoch 183/300  D -0.446  G 10.390
+    epoch 184/300  D -0.455  G 10.424
+    epoch 185/300  D -0.440  G 10.697
+    epoch 186/300  D -0.449  G 10.551
+    epoch 187/300  D -0.444  G 10.736
+    epoch 188/300  D -0.447  G 10.714
+    epoch 189/300  D -0.458  G 10.799
+    epoch 190/300  D -0.439  G 10.916
+    epoch 191/300  D -0.425  G 10.897
+    epoch 192/300  D -0.431  G 10.761
+    epoch 193/300  D -0.431  G 10.842
+    epoch 194/300  D -0.440  G 10.752
+    epoch 195/300  D -0.433  G 11.180
+    epoch 196/300  D -0.442  G 10.945
+    epoch 197/300  D -0.437  G 10.941
+    epoch 198/300  D -0.443  G 11.031
+    epoch 199/300  D -0.434  G 10.871
+    epoch 200/300  D -0.451  G 10.917
+    epoch 201/300  D -0.426  G 10.863
+    epoch 202/300  D -0.440  G 10.723
+    epoch 203/300  D -0.426  G 10.811
+    epoch 204/300  D -0.432  G 10.929
+    epoch 205/300  D -0.427  G 10.760
+    epoch 206/300  D -0.444  G 10.977
+    epoch 207/300  D -0.421  G 10.791
+    epoch 208/300  D -0.429  G 10.682
+    epoch 209/300  D -0.415  G 10.606
+    epoch 210/300  D -0.431  G 10.779
+    epoch 211/300  D -0.427  G 10.820
+    epoch 212/300  D -0.430  G 10.524
+    epoch 213/300  D -0.424  G 10.581
+    epoch 214/300  D -0.440  G 10.524
+    epoch 215/300  D -0.427  G 10.416
+    epoch 216/300  D -0.437  G 10.435
+    epoch 217/300  D -0.415  G 10.496
+    epoch 218/300  D -0.399  G 10.580
+    epoch 219/300  D -0.423  G 10.632
+    epoch 220/300  D -0.434  G 10.819
+    epoch 221/300  D -0.409  G 10.621
+    epoch 222/300  D -0.392  G 10.943
+    epoch 223/300  D -0.406  G 10.734
+    epoch 224/300  D -0.428  G 10.821
+    epoch 225/300  D -0.410  G 10.863
+    epoch 226/300  D -0.411  G 10.986
+    epoch 227/300  D -0.424  G 10.889
+    epoch 228/300  D -0.415  G 10.795
+    epoch 229/300  D -0.416  G 10.903
+    epoch 230/300  D -0.410  G 10.957
+    epoch 231/300  D -0.417  G 11.018
+    epoch 232/300  D -0.448  G 10.878
+    epoch 233/300  D -0.424  G 10.846
+    epoch 234/300  D -0.435  G 10.842
+    epoch 235/300  D -0.420  G 10.824
+    epoch 236/300  D -0.430  G 10.840
+    epoch 237/300  D -0.431  G 10.736
+    epoch 238/300  D -0.435  G 10.761
+    epoch 239/300  D -0.412  G 10.808
+    epoch 240/300  D -0.413  G 10.936
+    epoch 241/300  D -0.445  G 10.902
+    epoch 242/300  D -0.422  G 11.028
+    epoch 243/300  D -0.438  G 11.177
+    epoch 244/300  D -0.436  G 11.275
+    epoch 245/300  D -0.450  G 11.339
+    epoch 246/300  D -0.430  G 11.386
+    epoch 247/300  D -0.442  G 11.350
+    epoch 248/300  D -0.439  G 11.377
+    epoch 249/300  D -0.432  G 11.282
+    epoch 250/300  D -0.442  G 11.254
+    epoch 251/300  D -0.437  G 11.269
+    epoch 252/300  D -0.441  G 11.142
+    epoch 253/300  D -0.436  G 11.281
+    epoch 254/300  D -0.430  G 11.159
+    epoch 255/300  D -0.447  G 11.257
+    epoch 256/300  D -0.425  G 11.191
+    epoch 257/300  D -0.457  G 11.057
+    epoch 258/300  D -0.437  G 11.313
+    epoch 259/300  D -0.440  G 11.248
+    epoch 260/300  D -0.436  G 11.121
+    epoch 261/300  D -0.447  G 11.427
+    epoch 262/300  D -0.434  G 11.274
+    epoch 263/300  D -0.445  G 11.320
+    epoch 264/300  D -0.438  G 11.214
+    epoch 265/300  D -0.477  G 11.044
+    epoch 266/300  D -0.432  G 11.101
+    epoch 267/300  D -0.448  G 10.818
+    epoch 268/300  D -0.445  G 10.759
+    epoch 269/300  D -0.462  G 10.669
+    epoch 270/300  D -0.446  G 10.761
+    epoch 271/300  D -0.468  G 10.642
+    epoch 272/300  D -0.451  G 10.582
+    epoch 273/300  D -0.456  G 10.509
+    epoch 274/300  D -0.452  G 10.729
+    epoch 275/300  D -0.464  G 10.496
+    epoch 276/300  D -0.454  G 10.564
+    epoch 277/300  D -0.464  G 10.559
+    epoch 278/300  D -0.458  G 10.437
+    epoch 279/300  D -0.439  G 10.421
+    epoch 280/300  D -0.461  G 10.295
+    epoch 281/300  D -0.439  G 10.199
+    epoch 282/300  D -0.456  G 10.358
+    epoch 283/300  D -0.452  G 10.286
+    epoch 284/300  D -0.444  G 10.139
+    epoch 285/300  D -0.446  G 10.292
+    epoch 286/300  D -0.444  G 10.161
+    epoch 287/300  D -0.449  G 10.082
+    epoch 288/300  D -0.452  G 10.114
+    epoch 289/300  D -0.437  G 9.960
+    epoch 290/300  D -0.448  G 9.939
+    epoch 291/300  D -0.442  G 9.998
+    epoch 292/300  D -0.439  G 9.890
+    epoch 293/300  D -0.453  G 9.884
+    epoch 294/300  D -0.434  G 9.898
+    epoch 295/300  D -0.456  G 9.909
+    epoch 296/300  D -0.465  G 9.891
+    epoch 297/300  D -0.452  G 9.951
+    epoch 298/300  D -0.430  G 9.916
+    epoch 299/300  D -0.450  G 9.791
+    epoch 300/300  D -0.452  G 9.978
+[gan] augmentation minority recall [0.093, 0.037] -> [0.171, 0.333]
+[transitions] next-step acc 0.953 (paper ~0.96)
+
+==== SUMMARY ====
+{
+  "hr_forecast": {
+    "lstm": {
+      "mse": 0.0105,
+      "mae": 0.057,
+      "rmse_bpm": 1.83
+    },
+    "bilstm": {
+      "mse": 0.0104,
+      "mae": 0.0593,
+      "rmse_bpm": 1.82
+    }
+  },
+  "hr_paper": {
+    "mse": 0.2944,
+    "mae": 0.341
+  },
+  "sleep": {
+    "acc": 0.534,
+    "macro_f1": 0.444,
+    "paper": 0.92
+  },
+  "gan_augmentation": {
+    "minority_classes": [
+      "rem",
+      "wake"
+    ],
+    "recall_before": {
+      "rem": 0.093,
+      "wake": 0.037
+    },
+    "recall_after": {
+      "rem": 0.171,
+      "wake": 0.333
+    },
+    "acc_before": 0.696,
+    "acc_after": 0.52,
+    "synth_per_class": 3000
+  },
+  "transitions": {
+    "next_step_acc": 0.953
+  },
+  "runtime_sec": 3051.4,
+  "smoke": false
+}
+
+Artifacts in results/ : checkpoints (.pt), metrics (.json), figures (.png)

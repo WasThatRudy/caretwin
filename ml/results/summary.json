@@ -1,0 +1,45 @@
+{
+  "hr_forecast": {
+    "lstm": {
+      "mse": 0.0105,
+      "mae": 0.057,
+      "rmse_bpm": 1.83
+    },
+    "bilstm": {
+      "mse": 0.0104,
+      "mae": 0.0593,
+      "rmse_bpm": 1.82
+    }
+  },
+  "hr_paper": {
+    "mse": 0.2944,
+    "mae": 0.341
+  },
+  "sleep": {
+    "acc": 0.534,
+    "macro_f1": 0.444,
+    "paper": 0.92
+  },
+  "gan_augmentation": {
+    "minority_classes": [
+      "rem",
+      "wake"
+    ],
+    "recall_before": {
+      "rem": 0.093,
+      "wake": 0.037
+    },
+    "recall_after": {
+      "rem": 0.171,
+      "wake": 0.333
+    },
+    "acc_before": 0.696,
+    "acc_after": 0.52,
+    "synth_per_class": 3000
+  },
+  "transitions": {
+    "next_step_acc": 0.953
+  },
+  "runtime_sec": 3051.4,
+  "smoke": false
+}
